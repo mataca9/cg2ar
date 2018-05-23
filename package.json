@@ -2,14 +2,14 @@
   "name": "gc2ar",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "connect": "^3.6.6",
+    "node-static": "^0.7.10",
     "serve-static": "^1.13.2"
   }
 }
