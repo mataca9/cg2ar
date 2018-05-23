@@ -49,8 +49,8 @@
                 sourceType: 'webcam',
 
                 // // to read from an image
-                // sourceType : 'image',
-                // sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/img.jpg',		
+                //sourceType : 'image',
+                //sourceUrl : THREEx.ArToolkitContext.baseURL + '/img/hiro-marker.gif',		
 
                 // to read from a video
                 // sourceType : 'video',
@@ -115,7 +115,8 @@
             //		add an object in the scene
             //////////////////////////////////////////////////////////////////////////////////
 
-            // add a torus knot	
+            // add a torus knot
+            /*
             var geometry = new THREE.CubeGeometry(1, 1, 1);
             var material = new THREE.MeshNormalMaterial({
                 transparent: true,
@@ -134,7 +135,17 @@
 
             onRenderFcts.push(function (delta) {
                 mesh.rotation.x += Math.PI * delta
-            })
+            })*/
+            
+            var geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
+            texture = THREE.ImageUtils.loadTexture('img/gerson.png');
+            material = new THREE.MeshBasicMaterial({map: texture});
+            var plane = new THREE.Mesh(geometry, material);
+
+            plane.position.x=0;
+            plane.position.y=0;
+            plane.rotation.x = 1.5 * Math.PI;
+            scene.add(plane);
 
             //////////////////////////////////////////////////////////////////////////////////
             //		render the whole thing on the page
