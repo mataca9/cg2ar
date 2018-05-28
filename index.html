@@ -202,15 +202,17 @@
                     }
                 });
 
-                var btn = document.getElementById('button');
-                console.log(btn)
-                // btn.addEventListener('touchstart', () => {
-                //     element.maxRelease();
-                // });
+                var theElement = document.getElementById("button");
 
-                btn.addEventListener('click', () => {
+                theElement.addEventListener("mouseup", tapOrClick, false);
+                theElement.addEventListener("touchend", tapOrClick, false);
+
+                function tapOrClick(event) {
+                //handle tap or click.
                     element.maxRelease();
-                });
+                    event.preventDefault();
+                    return false;
+                }
 
                 /*
                 var geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
