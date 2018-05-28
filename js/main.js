@@ -97,6 +97,12 @@ function Behavior() {
         }
     }
 
+    this.maxRelease = function() {
+        this.power = 0.1;
+        this.preparing = true;
+        this.release();
+    }
+
     this.moveTo = function (pos) {
         this.moving = true;
         this.objective = pos;

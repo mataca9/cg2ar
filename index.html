@@ -31,6 +31,7 @@
             height:50px;
             bottom: 15px;
             left: 15px;
+            z-index:100;
         }
     </style>
 </head>
@@ -94,11 +95,11 @@
 
                 var arToolkitSource = new THREEx.ArToolkitSource({
                     // to read from the webcam 
-                    sourceType: 'webcam',
+                    //sourceType: 'webcam',
 
                     // // to read from an image
-                    //sourceType : 'image',
-                    //sourceUrl : THREEx.ArToolkitContext.baseURL + '/img/bg1.jpeg',		
+                    sourceType : 'image',
+                    sourceUrl : THREEx.ArToolkitContext.baseURL + '/img/bg1.jpeg',		
 
                     // to read from a video
                     // sourceType : 'video',
@@ -202,8 +203,11 @@
                 });
 
                 var btn = document.getElementById('button');
-                btn.addEventListener('touchstart', element.powerUp);
-                btn.addEventListener('touchend', element.release);
+                console.log(btn)
+                btn.addEventListener('touchstart', () => {
+                    console.log(123)
+                    element.maxRelease();
+                });
 
                 /*
                 var geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
