@@ -95,11 +95,11 @@
 
                 var arToolkitSource = new THREEx.ArToolkitSource({
                     // to read from the webcam 
-                    //sourceType: 'webcam',
+                    sourceType: 'webcam',
 
                     // // to read from an image
-                    sourceType : 'image',
-                    sourceUrl : THREEx.ArToolkitContext.baseURL + '/img/bg1.jpeg',		
+                    //sourceType : 'image',
+                    //sourceUrl : THREEx.ArToolkitContext.baseURL + '/img/bg1.jpeg',		
 
                     // to read from a video
                     // sourceType : 'video',
@@ -204,13 +204,13 @@
 
                 var btn = document.getElementById('button');
                 console.log(btn)
-                btn.addEventListener('touchstart', () => {
-                    element.maxRelease();
-                });
-
-                // btn.addEventListener('click', () => {
+                // btn.addEventListener('touchstart', () => {
                 //     element.maxRelease();
                 // });
+
+                btn.addEventListener('click', () => {
+                    element.maxRelease();
+                });
 
                 /*
                 var geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
