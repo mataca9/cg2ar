@@ -21,7 +21,7 @@ function ground(scene) {
     return ground;
 }
 
-function sphere(scene) {
+function sphere(scene, id) {
     var geometry = new THREE.SphereGeometry(0.2, 32, 32);
     var material = new THREE.MeshStandardMaterial({ color: 0xffff00 });
     var sphere = new THREE.Mesh(geometry, material);
