@@ -1,9 +1,11 @@
+// Phyfics
+
 var g = 0.025;
 var vl = 0.4;
 
 function ground(scene) {
     var geometry = new THREE.PlaneGeometry(3.2, 4.4, 1);
-    var material = new THREE.MeshStandardMaterial({ name: 'ground', opacity:0.01, color: 0xaaaaaa, side: THREE.DoubleSide });
+    var material = new THREE.MeshStandardMaterial({ name: 'ground', opacity:0, color: 0xaaaaaa, side: THREE.DoubleSide });
     // var material = new THREE.MeshNormalMaterial({
     //     transparent: true,
     //     opacity: 1,
@@ -21,7 +23,7 @@ function ground(scene) {
     return ground;
 }
 
-function sphere(scene, id) {
+function sphere(scene) {
     var geometry = new THREE.SphereGeometry(0.2, 32, 32);
     var material = new THREE.MeshStandardMaterial({ color: 0xffff00 });
     var sphere = new THREE.Mesh(geometry, material);
@@ -39,18 +41,44 @@ function sphere(scene, id) {
 function cube(scene) {
     var geometry = new THREE.BoxGeometry(1, 1, 1);
     var materials = new THREE.MeshStandardMaterial(
-        new THREE.MeshStandardMaterial({ color: 0xffff00 })
+        new THREE.MeshStandardMaterial({ color: 0xffff00, opacity: 1 })
     );
     var cube = new THREE.Mesh(geometry, materials);
 
-    cube.castShadow = true; //default is false
-    cube.receiveShadow = false; //default
-
-    cube.position.y = 1;
+    cube.position.y = cube.geometry.parameters.height/2 + 0.05;
     cube = Object.assign(cube, new Behavior(scene));
     scene.add(cube);
 
     return cube;
+}
+
+function cylinder(scene, opacity = 1) {
+    var materials = new THREE.MeshStandardMaterial(
+        new THREE.MeshStandardMaterial({ color: 0xffff00, opacity })
+    );
+
+    var extrudeSettings = {
+        amount : 1,
+        steps : 1,
+        bevelEnabled: false,
+        curveSegments: 8
+    };
+    
+    var arcShape = new THREE.Shape();
+    arcShape.absarc(0, 0, 0.5, 0, Math.PI * 2, 0, false);
+    
+    var holePath = new THREE.Path();
+    holePath.absarc(0, 0, 0.45, 0, Math.PI * 2, true);
+    arcShape.holes.push(holePath);
+    
+    var geometry = new THREE.ExtrudeGeometry(arcShape, extrudeSettings);
+
+    var cylinder = new THREE.Mesh(geometry, materials);
+
+    cylinder = Object.assign(cylinder, new Behavior(scene));
+    cylinder.rotation.x = -Math.PI /2;
+    scene.add(cylinder);
+    return cylinder;
 }
 
 function Behavior() {
@@ -78,18 +106,21 @@ function Behavior() {
     this.powerUp = function () {
         if(!this.stop) return;
         
-        this.power += this.power > 0.1 ? 0 : 0.001;
+        this.power += this.power > 0.5 ? 0 : 0.005;
         this.preparing = true;
-        const g = 255 - (Math.floor(this.power*2000) > 255 ? 255 : Math.floor(this.power*2000));
+        const g = 255 - (Math.floor(this.power*500) > 255 ? 255 : Math.floor(this.power*500));
         this.material.color.setHex(((255 << 16) + (g << 8) + (0)));
-        document.getElementById("power").innerText = `Power: ${Math.floor(this.power*1000)}%`;
+        document.getElementById("power").innerText = `Power: ${Math.floor(this.power*200)}%`;
     }
 
     this.release = function () {
         if(!this.stop) return;
         if(this.preparing){
-            this.jump(this.power*1.2);
-            this.vz = this.power;
+            this.position.y += 0.1;
+            this.vz = this.power * Math.cos(this.rotation.x - Math.PI/2);
+            this.vx = this.power * -Math.cos(this.rotation.z - Math.PI/2);
+            this.vy = this.power * -Math.sin(this.rotation.z - Math.PI/2);
+
             this.power = 0;
             this.material.color.setHex(0xffff00);
             this.preparing = false;
@@ -98,7 +129,7 @@ function Behavior() {
     }
 
     this.maxRelease = function() {
-        this.power = 0.1;
+        this.power = 0.5;
         this.preparing = true;
         this.release();
     }
@@ -156,4 +187,21 @@ function Behavior() {
             this.position.z += dz > 0.5 ? -0.05 : dz < -0.5 ? 0.05 : 0;
         }      
     }
+}
+
+THREE.CylinderCurvedSurfaceGeometry = function(radius, height, startAngle, endAngle, horizontalSegments, verticalSegments) {
+    var width = radius * 2 * Math.PI;
+    var plane = new THREE.PlaneGeometry(width, height, horizontalSegments, verticalSegments);
+    var index = 0;
+
+    for(var i=0; i<=verticalSegments; i++) {
+        for(var j=0; j<=horizontalSegments; j++) {
+            var angle = startAngle + (j/horizontalSegments)*(endAngle - startAngle);
+            plane.vertices[index].z = radius * Math.cos(angle);
+            plane.vertices[index].x = radius * Math.sin(angle);
+            index++;
+        }
+    }
+
+    return plane;
 }

@@ -5,6 +5,7 @@
     <!-- three.js library -->
     <script src='js/three.min.js'></script>
     <script src='js/keyboard.three.js'></script>
+    <script src='js/joystick.js'></script>
     <!-- ar.js -->
     <script src="js/ar.min.js"></script>
     <!-- main -->
@@ -18,7 +19,7 @@
             width: 100%;
             text-align: center;
             z-index: 100;
-            display:block;
+            display: block;
             font-family: Arial;
         }
 
@@ -26,17 +27,30 @@
             position: absolute;
             border: none;
             background: red;
-            border-radius:50%;
-            width:50px;
-            height:50px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
             bottom: 15px;
             left: 15px;
-            z-index:100;
+            z-index: 9999;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            position: absolute;
+            z-index: 10;
         }
     </style>
 </head>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+    <div id="container"></div>
     <div id="power">Power: 0%</div>
     <button id="button"></button>
     <script>
@@ -67,10 +81,10 @@
                 var scene = new THREE.Scene();
 
                 //Create a PointLight and turn on shadows for the light
-                var light = new THREE.PointLight( 0xdadada, 1, 100 );
-                light.position.set( 0, 10, 10 );
+                var light = new THREE.PointLight(0xdadada, 1, 100);
+                light.position.set(0, 10, 10);
                 light.castShadow = true;            // default false
-                scene.add( light );
+                scene.add(light);
 
                 //Set up shadow properties for the light
                 light.shadow.mapSize.width = 512;  // default
@@ -95,11 +109,11 @@
 
                 var arToolkitSource = new THREEx.ArToolkitSource({
                     // to read from the webcam 
-                    sourceType: 'webcam',
+                    //sourceType: 'webcam',
 
                     // // to read from an image
-                    //sourceType : 'image',
-                    //sourceUrl : THREEx.ArToolkitContext.baseURL + '/img/bg1.jpeg',		
+                    sourceType: 'image',
+                    sourceUrl: THREEx.ArToolkitContext.baseURL + '/img/bg1.jpeg',
 
                     // to read from a video
                     // sourceType : 'video',
@@ -166,27 +180,7 @@
 
                 // add a torus knot
 
-                /*
-                var geometry = new THREE.CubeGeometry(1, 1, 1);
-                var material = new THREE.MeshNormalMaterial({
-                    transparent: true,
-                    opacity: 0.5,
-                    side: THREE.DoubleSide
-                });
-                var mesh = new THREE.Mesh(geometry, material);
-                mesh.position.y = geometry.parameters.height / 2
-                scene.add(mesh);
-    
-                var geometry = new THREE.TorusKnotGeometry(0.3, 0.1, 64, 16);
-                var material = new THREE.MeshNormalMaterial();
-                var mesh = new THREE.Mesh(geometry, material);
-                mesh.position.y = 0.5
-                scene.add(mesh);
-    
-                onRenderFcts.push(function (delta) {
-                    mesh.rotation.x += Math.PI * delta
-                })
-                */
+                // Elements
 
                 var element = sphere(scene);
                 var field = ground(scene);
@@ -208,23 +202,33 @@
                 theElement.addEventListener("touchend", tapOrClick, false);
 
                 function tapOrClick(event) {
-                //handle tap or click.
+                    //handle tap or click.
                     element.maxRelease();
                     event.preventDefault();
                     return false;
                 }
 
-                /*
-                var geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
-                texture = THREE.ImageUtils.loadTexture('img/gerson.png');
-                material = new THREE.MeshBasicMaterial({map: texture});
-                var plane = new THREE.Mesh(geometry, material);
-    
-                plane.position.x=0;
-                plane.position.y=0;
-                plane.rotation.x = 1.5 * Math.PI;
-                scene.add(plane);
-                */
+                // Mug
+
+                var element2 = cylinder(scene, 0);
+
+                element2.position.z = 2;
+                element2.position.x = 0;
+                element2.opacity = 0.1;
+
+                // -- Arrow
+                var dir = new THREE.Vector3(0, 0, 0);
+
+                //normalize the direction vector (convert to vector of length 1)
+                dir.normalize();
+
+                var origin = new THREE.Vector3(0, 0, 0);
+                var length = 1;
+                var hex = 0xff0000;
+
+                var arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
+                element.add(arrowHelper);
+
                 //////////////////////////////////////////////////////////////////////////////////
                 //		render the whole thing on the page
                 //////////////////////////////////////////////////////////////////////////////////
@@ -233,6 +237,23 @@
                 onRenderFcts.push(function () {
                     renderer.render(scene, camera);
                 })
+
+                // joystick
+                var joystick = new VirtualJoystick({
+                    container: document.getElementById('container'),
+                    mouseSupport: true,
+                });
+                joystick.addEventListener('touchStart', function () {
+                    console.log('down')
+                });
+                joystick.addEventListener('touchEnd', function () {
+                    console.log('up')
+                });
+
+                onRenderFcts.push(function () {
+                    element.rotation.x += joystick.deltaX()/1000;
+                    element.rotation.z += joystick.deltaY()/1000;
+                });
 
                 // run the rendering loop
                 var lastTimeMsec = null
@@ -243,11 +264,13 @@
                     lastTimeMsec = lastTimeMsec || nowMsec - 1000 / 60
                     var deltaMsec = Math.min(200, nowMsec - lastTimeMsec)
                     lastTimeMsec = nowMsec
+
                     // call each update function
                     onRenderFcts.forEach(function (onRenderFct) {
                         onRenderFct(deltaMsec / 1000, nowMsec / 1000)
-                    })
+                    });
                 });
+                
             })();
     </script>
 </body>
