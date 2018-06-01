@@ -56,21 +56,21 @@ function cube(scene) {
 
 function cylinder(scene, opacity = 1) {
     var materials = new THREE.MeshStandardMaterial(
-        new THREE.MeshStandardMaterial({ color: 0xffff00 })
+        new THREE.MeshStandardMaterial({ color: 0x00ff00 })
     );
 
     var extrudeSettings = {
-        amount : 1,
+        amount : 1.7,
         steps : 1,
         bevelEnabled: false,
         curveSegments: 8
     };
     
     var arcShape = new THREE.Shape();
-    arcShape.absarc(0, 0, 0.5, 0, Math.PI * 2, 0, false);
+    arcShape.absarc(0, 0, 0.75, 0, Math.PI * 2, false);
     
     var holePath = new THREE.Path();
-    holePath.absarc(0, 0, 0.45, 0, Math.PI * 2, true);
+    holePath.absarc(0, 0, 0.75, 0, Math.PI * 2, true);
     arcShape.holes.push(holePath);
     
     var geometry = new THREE.ExtrudeGeometry(arcShape, extrudeSettings);

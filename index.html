@@ -23,16 +23,25 @@
             font-family: Arial;
         }
 
-        #button {
+        button {
             position: absolute;
             border: none;
-            background: red;
             border-radius: 50%;
             width: 50px;
             height: 50px;
+            z-index: 9999;
+        }
+
+        #launch {
             bottom: 15px;
             left: 15px;
-            z-index: 9999;
+            background: red;
+        }
+
+        #toggler {
+            bottom: 100px;
+            left: 15px;
+            background: green;
         }
 
         #container {
@@ -52,7 +61,8 @@
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
     <div id="container"></div>
     <div id="power">Power: 0%</div>
-    <button id="button"></button>
+    <button id="launch"></button>
+    <button id="toggler"></button>
     <script>
             //////////////////////////////////////////////////////////////////////////////////
             //		Init
@@ -73,7 +83,7 @@
                 renderer.shadowMap.enabled = true;
                 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMapÏ
                 // VERY IMPORTANT
-                renderer.autoClear = false ;
+                renderer.autoClear = false;
                 document.body.appendChild(renderer.domElement);
 
 
@@ -113,11 +123,11 @@
 
                 var arToolkitSource = new THREEx.ArToolkitSource({
                     // to read from the webcam 
-                    sourceType: 'webcam',
+                    //sourceType: 'webcam',
 
                     // // to read from an image
-                    //sourceType: 'image',
-                    //sourceUrl: THREEx.ArToolkitContext.baseURL + '/img/bg5.jpeg',
+                    sourceType: 'image',
+                    sourceUrl: THREEx.ArToolkitContext.baseURL + '/img/bg6.jpeg',
 
                     // to read from a video
                     // sourceType : 'video',
@@ -200,24 +210,12 @@
                     }
                 });
 
-                var theElement = document.getElementById("button");
-
-                theElement.addEventListener("mouseup", tapOrClick, false);
-                theElement.addEventListener("touchend", tapOrClick, false);
-
-                function tapOrClick(event) {
-                    //handle tap or click.
-                    element.maxRelease();
-                    event.preventDefault();
-                    return false;
-                }
-
                 // Mug
 
                 var element2 = cylinder(sceneMask, 0);
 
-                element2.position.z = 2;
-                element2.position.x = 0;
+                element2.position.z = 1.5;
+                element2.position.x = 1.7;
                 element2.opacity = 0.1;
 
                 // -- Arrow
@@ -238,9 +236,11 @@
                 //////////////////////////////////////////////////////////////////////////////////
 
                 // render the scene
+                var mugVisible = false;
                 onRenderFcts.push(function () {
                     renderer.clear();
-                    renderer.context.colorMask(false, false, false, false); // R, G, B, A
+
+                    renderer.context.colorMask(mugVisible, mugVisible, mugVisible, mugVisible); // R, G, B, A
                     renderer.render(sceneMask, camera);
 
                     renderer.context.colorMask(true, true, true, true);
@@ -260,8 +260,8 @@
                 });
 
                 onRenderFcts.push(function () {
-                    element.rotation.x += joystick.deltaX()/1000;
-                    element.rotation.z += joystick.deltaY()/1000;
+                    element.rotation.z -= joystick.deltaX() / 1000;
+                    element.rotation.x += joystick.deltaY() / 1000;
                 });
 
                 // run the rendering loop
@@ -279,7 +279,34 @@
                         onRenderFct(deltaMsec / 1000, nowMsec / 1000)
                     });
                 });
-                
+
+
+                // Html event listeners
+                var launch = document.getElementById("launch");
+                var toggler = document.getElementById("toggler");
+
+                launch.addEventListener("mouseup", LaunchPress, false);
+                launch.addEventListener("touchend", LaunchPress, false);
+
+                toggler.addEventListener("mouseup", TogglePress, false);
+                toggler.addEventListener("touchend", TogglePress, false);
+
+                function LaunchPress(event) {
+                    //handle tap or click.
+                    element.maxRelease();
+                    event.preventDefault();
+                    return false;
+                }
+
+                var lastToggle = 0;
+                function TogglePress() {
+                    if (lastTimeMsec - lastToggle < 1) return false;
+
+                    mugVisible = !mugVisible;       
+                    lastToggle = lastTimeMsec;
+                    return false;
+                }
+
             })();
     </script>
 </body>
