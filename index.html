@@ -72,13 +72,17 @@
                 renderer.domElement.style.left = '0px'
                 renderer.shadowMap.enabled = true;
                 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMapÏ
+                // VERY IMPORTANT
+                renderer.autoClear = false ;
                 document.body.appendChild(renderer.domElement);
+
 
                 // array of functions for the rendering loop
                 var onRenderFcts = [];
 
                 // init scene and camera
                 var scene = new THREE.Scene();
+                var sceneMask = new THREE.Scene();
 
                 //Create a PointLight and turn on shadows for the light
                 var light = new THREE.PointLight(0xdadada, 1, 100);
@@ -113,7 +117,7 @@
 
                     // // to read from an image
                     //sourceType: 'image',
-                    //sourceUrl: THREEx.ArToolkitContext.baseURL + '/img/bg1.jpeg',
+                    //sourceUrl: THREEx.ArToolkitContext.baseURL + '/img/bg5.jpeg',
 
                     // to read from a video
                     // sourceType : 'video',
@@ -210,7 +214,7 @@
 
                 // Mug
 
-                var element2 = cylinder(scene, 0);
+                var element2 = cylinder(sceneMask, 0);
 
                 element2.position.z = 2;
                 element2.position.x = 0;
@@ -235,6 +239,11 @@
 
                 // render the scene
                 onRenderFcts.push(function () {
+                    renderer.clear();
+                    renderer.context.colorMask(false, false, false, false); // R, G, B, A
+                    renderer.render(sceneMask, camera);
+
+                    renderer.context.colorMask(true, true, true, true);
                     renderer.render(scene, camera);
                 })
 

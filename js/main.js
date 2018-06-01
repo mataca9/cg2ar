@@ -20,6 +20,8 @@ function ground(scene) {
     ground.rotation.x = Math.PI / 2;
     scene.add(ground);
 
+    ground.material.transparent = true ;
+
     return ground;
 }
 
@@ -41,7 +43,7 @@ function sphere(scene) {
 function cube(scene) {
     var geometry = new THREE.BoxGeometry(1, 1, 1);
     var materials = new THREE.MeshStandardMaterial(
-        new THREE.MeshStandardMaterial({ color: 0xffff00, opacity: 1 })
+        new THREE.MeshStandardMaterial({ color: 0xffff00 })
     );
     var cube = new THREE.Mesh(geometry, materials);
 
@@ -54,7 +56,7 @@ function cube(scene) {
 
 function cylinder(scene, opacity = 1) {
     var materials = new THREE.MeshStandardMaterial(
-        new THREE.MeshStandardMaterial({ color: 0xffff00, opacity })
+        new THREE.MeshStandardMaterial({ color: 0xffff00 })
     );
 
     var extrudeSettings = {
