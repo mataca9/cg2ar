@@ -12,76 +12,7 @@
     <script src="js/main.js"></script>
     <script>THREEx.ArToolkitContext.baseURL = ''</script>
 
-    <style>
-        #power {
-            position: absolute;
-            bottom: 60px;
-            padding:10px;
-            background: #aaa;
-            width:100px;
-            border-radius:5px;
-            color:#fff;
-            text-align: center;
-            z-index: 100;
-            display: block;
-            font-family: Arial;
-            left:50%;
-            transform:translateX(-50%);
-            box-shadow: 0px 3px 5px rgba(0,0,0,0.8);
-        }
-
-        button {
-            position: absolute;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            z-index: 9999;
-            color:#fff;
-            box-shadow: 0px 3px 5px rgba(0,0,0,0.8);
-            outline:none;
-        }
-
-        #launch {
-            bottom: 50px;
-            left: 15px;
-            background: red;
-        }
-
-        #toggler {
-            bottom: 150px;
-            left: 15px;
-            background: green;
-        }
-
-        #reset {
-            bottom: 250px;
-            left: 15px;
-            background: blue;
-        }
-
-        #range {
-            position:absolute;
-            bottom: 20px;
-            left: 100px;
-            z-index:100;
-            width: 50%;
-            left:50%;
-            transform:translateX(-50%);
-        }
-
-        #container {
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            padding: 0;
-            margin: 0;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            position: absolute;
-            z-index: 10;
-        }
-    </style>
+    <link href="css/style.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
@@ -113,7 +44,6 @@
                 // VERY IMPORTANT
                 renderer.autoClear = false;
                 document.body.appendChild(renderer.domElement);
-
 
                 // array of functions for the rendering loop
                 var onRenderFcts = [];
@@ -217,7 +147,7 @@
                 scene.visible = false
 
                 //////////////////////////////////////////////////////////////////////////////////
-                //		add an object in the scene
+                //		Scene elements
                 //////////////////////////////////////////////////////////////////////////////////
 
                 // add a torus knot
@@ -230,26 +160,11 @@
                 onRenderFcts.push(function (delta) {
                     element.hitTest(field);
                     element.update();
-
-                    // if (keyboard.pressed("z")) {
-                    //     element.powerUp();
-                    // } else {
-                    //     element.release();
-                    // }
                 });
 
-                // Mug
-
-                var element2 = cylinder(sceneMask, 0);
-
-                element2.position.z = 1.55;
-                element2.position.x = 1.7;
-                element2.opacity = 0.1;
-
-                // -- Arrow
+                // Arrow
                 var dir = new THREE.Vector3(0, 0, 0);
 
-                //normalize the direction vector (convert to vector of length 1)
                 dir.normalize();
 
                 var origin = new THREE.Vector3(0, 0, 0);
@@ -258,6 +173,13 @@
 
                 var arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
                 element.add(arrowHelper);
+
+                // Mug
+                var element2 = cylinder(sceneMask, 0);
+
+                element2.position.z = 1.55;
+                element2.position.x = 1.7;
+                element2.opacity = 0.1;
 
                 //////////////////////////////////////////////////////////////////////////////////
                 //		render the whole thing on the page
@@ -275,16 +197,16 @@
                     renderer.render(scene, camera);
                 })
 
-                // joystick
+                //////////////////////////////////////////////////////////////////////////////////
+                //		Joystick controller
+                //////////////////////////////////////////////////////////////////////////////////
                 var joystick = new VirtualJoystick({
                     container: document.getElementById('container'),
                     mouseSupport: true,
-                    stationaryBase: true,
-                    baseX: window.innerWidth - 100,
-                    baseY: window.innerHeight - 100,
                     limitStickTravel: true,
                     stickRadius: 50
                 });
+
                 joystick.addEventListener('touchStart', function () {
                     console.log('down')
                 });
@@ -297,7 +219,9 @@
                     element.rotation.x += joystick.deltaY() / 1000;
                 });
 
-                // run the rendering loop
+                //////////////////////////////////////////////////////////////////////////////////
+                //		Render and functions loop
+                //////////////////////////////////////////////////////////////////////////////////
                 var lastTimeMsec = null
                 requestAnimationFrame(function animate(nowMsec) {
                     // keep looping
@@ -314,7 +238,10 @@
                 });
 
 
-                // Html event listeners
+                //////////////////////////////////////////////////////////////////////////////////
+                //		HTML Event Listeners
+                //////////////////////////////////////////////////////////////////////////////////
+
                 var reseter = document.getElementById("reset");
                 var launch = document.getElementById("launch");
                 var toggler = document.getElementById("toggler");
@@ -343,7 +270,6 @@
                 }
 
                 function LaunchPress(event) {
-                    //handle tap or click.
                     element.release(power);
                     event.preventDefault();
                     return false;
@@ -353,12 +279,12 @@
                 function TogglePress() {
                     if (lastTimeMsec - lastToggle < 1) return false;
 
-                    mugVisible = !mugVisible;       
+                    mugVisible = !mugVisible;
                     lastToggle = lastTimeMsec;
                     return false;
                 }
 
-                function PowerChange(e){
+                function PowerChange(e) {
                     e.stopPropagation();
                     power = range.value;
                     powerLabel.innerHTML = `Power: ${power}%`;
