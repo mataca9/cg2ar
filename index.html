@@ -15,12 +15,19 @@
     <style>
         #power {
             position: absolute;
-            top: 10px;
-            width: 100%;
+            bottom: 60px;
+            padding:10px;
+            background: #aaa;
+            width:100px;
+            border-radius:5px;
+            color:#fff;
             text-align: center;
             z-index: 100;
             display: block;
             font-family: Arial;
+            left:50%;
+            transform:translateX(-50%);
+            box-shadow: 0px 3px 5px rgba(0,0,0,0.8);
         }
 
         button {
@@ -30,18 +37,37 @@
             width: 50px;
             height: 50px;
             z-index: 9999;
+            color:#fff;
+            box-shadow: 0px 3px 5px rgba(0,0,0,0.8);
+            outline:none;
         }
 
         #launch {
-            bottom: 15px;
+            bottom: 50px;
             left: 15px;
             background: red;
         }
 
         #toggler {
-            bottom: 100px;
+            bottom: 150px;
             left: 15px;
             background: green;
+        }
+
+        #reset {
+            bottom: 250px;
+            left: 15px;
+            background: blue;
+        }
+
+        #range {
+            position:absolute;
+            bottom: 20px;
+            left: 100px;
+            z-index:100;
+            width: 50%;
+            left:50%;
+            transform:translateX(-50%);
         }
 
         #container {
@@ -61,8 +87,10 @@
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
     <div id="container"></div>
     <div id="power">Power: 0%</div>
-    <button id="launch"></button>
-    <button id="toggler"></button>
+    <button id="launch">Launch</button>
+    <button id="toggler">Toggle</button>
+    <button id="reset">Reset</button>
+    <input id="range" type="range" value="0" min="0" max="100" />
     <script>
             //////////////////////////////////////////////////////////////////////////////////
             //		Init
@@ -203,18 +231,18 @@
                     element.hitTest(field);
                     element.update();
 
-                    if (keyboard.pressed("z")) {
-                        element.powerUp();
-                    } else {
-                        element.release();
-                    }
+                    // if (keyboard.pressed("z")) {
+                    //     element.powerUp();
+                    // } else {
+                    //     element.release();
+                    // }
                 });
 
                 // Mug
 
                 var element2 = cylinder(sceneMask, 0);
 
-                element2.position.z = 1.5;
+                element2.position.z = 1.55;
                 element2.position.x = 1.7;
                 element2.opacity = 0.1;
 
@@ -251,6 +279,11 @@
                 var joystick = new VirtualJoystick({
                     container: document.getElementById('container'),
                     mouseSupport: true,
+                    stationaryBase: true,
+                    baseX: window.innerWidth - 100,
+                    baseY: window.innerHeight - 100,
+                    limitStickTravel: true,
+                    stickRadius: 50
                 });
                 joystick.addEventListener('touchStart', function () {
                     console.log('down')
@@ -282,8 +315,15 @@
 
 
                 // Html event listeners
+                var reseter = document.getElementById("reset");
                 var launch = document.getElementById("launch");
                 var toggler = document.getElementById("toggler");
+                var range = document.getElementById("range");
+                var powerLabel = document.getElementById("power");
+                var power = 0;
+
+                reseter.addEventListener("mouseup", Reset, false);
+                reseter.addEventListener("touchend", Reset, false);
 
                 launch.addEventListener("mouseup", LaunchPress, false);
                 launch.addEventListener("touchend", LaunchPress, false);
@@ -291,9 +331,20 @@
                 toggler.addEventListener("mouseup", TogglePress, false);
                 toggler.addEventListener("touchend", TogglePress, false);
 
+                range.addEventListener("change", PowerChange, false);
+
+                function Reset() {
+                    element.position.x = 0;
+                    element.position.y = 0;
+                    element.position.z = 0;
+                    element.rotation.x = 0;
+                    element.rotation.y = 0;
+                    element.rotation.z = 0;
+                }
+
                 function LaunchPress(event) {
                     //handle tap or click.
-                    element.maxRelease();
+                    element.release(power);
                     event.preventDefault();
                     return false;
                 }
@@ -305,6 +356,12 @@
                     mugVisible = !mugVisible;       
                     lastToggle = lastTimeMsec;
                     return false;
+                }
+
+                function PowerChange(e){
+                    e.stopPropagation();
+                    power = range.value;
+                    powerLabel.innerHTML = `Power: ${power}%`;
                 }
 
             })();

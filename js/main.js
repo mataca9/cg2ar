@@ -95,7 +95,6 @@ function Behavior() {
     this.hitx = false;
     this.hitz = false;
     this.objective = null;
-    this.power = 0;
     this.preparing = false;
 
     this.jump = function (power = 0.05) {
@@ -105,29 +104,13 @@ function Behavior() {
         this.position.y += 0.1;
     }
 
-    this.powerUp = function () {
+    this.release = function (power) {
         if(!this.stop) return;
-        
-        this.power += this.power > 0.5 ? 0 : 0.005;
-        this.preparing = true;
-        const g = 255 - (Math.floor(this.power*500) > 255 ? 255 : Math.floor(this.power*500));
-        this.material.color.setHex(((255 << 16) + (g << 8) + (0)));
-        document.getElementById("power").innerText = `Power: ${Math.floor(this.power*200)}%`;
-    }
 
-    this.release = function () {
-        if(!this.stop) return;
-        if(this.preparing){
-            this.position.y += 0.1;
-            this.vz = this.power * Math.cos(this.rotation.x - Math.PI/2);
-            this.vx = this.power * -Math.cos(this.rotation.z - Math.PI/2);
-            this.vy = this.power * -Math.sin(this.rotation.z - Math.PI/2);
-
-            this.power = 0;
-            this.material.color.setHex(0xffff00);
-            this.preparing = false;
-            document.getElementById("power").innerText = `Power: ${this.power}%`;
-        }
+        this.position.y += 0.1;
+        this.vz = power/100 * Math.cos(this.rotation.x - Math.PI/2);
+        this.vx = power/100 * -Math.cos(this.rotation.z - Math.PI/2);
+        this.vy = power/100 * -Math.sin(this.rotation.z - Math.PI/2);
     }
 
     this.maxRelease = function() {
