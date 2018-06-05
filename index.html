@@ -81,11 +81,11 @@
 
                 const arToolkitSource = new THREEx.ArToolkitSource({
                     // to read from the webcam 
-                    sourceType: 'webcam',
+                    //sourceType: 'webcam',
 
                     // // to read from an image
-                    //sourceType: 'image',
-                    //sourceUrl: THREEx.ArToolkitContext.baseURL + '/img/bg6.jpeg',
+                    sourceType: 'image',
+                    sourceUrl: THREEx.ArToolkitContext.baseURL + '/img/bg5.jpeg',
 
                     // to read from a video
                     // sourceType : 'video',
@@ -100,7 +100,7 @@
                 window.addEventListener('resize', function () {
                     onResize()
                 });
-                
+
                 function onResize() {
                     arToolkitSource.onResizeElement()
                     arToolkitSource.copyElementSizeTo(renderer.domElement)
@@ -158,6 +158,8 @@
                 const element = sphere(scene);
                 const field = ground(scene);
 
+                element.rotation.x = 0.2;
+
                 onRenderFcts.push(function (delta) {
                     element.hitTest(field);
                     element.update();
@@ -173,9 +175,30 @@
                 // Mug
                 const element2 = cylinder(sceneMask, 0);
 
-                element2.position.z = 1.55;
-                element2.position.x = 1.7;
+                element2.position.z = 2;
+                element2.position.x = 0;
                 element2.opacity = 0.1;
+
+                // Collision test
+
+                onRenderFcts.push(() => {
+                    if(Math.abs(element.vx) < 0.001 && Math.abs(element.vz) < 0.001) return;
+
+                    const aux = sphere(scene);
+                    aux.position.set(element.position.x, element.position.y, element.position.z);
+                    const e1 = new THREE.Box3().setFromObject(aux);
+                    const e2 = new THREE.Box3().setFromObject(element2);
+                    
+                    const radius1 = aux.geometry.parameters.radius;
+                    const radius2 = e2.max.x - e2.min.x;
+
+                    if (e1.intersectsBox(e2)) {
+                        const d = distancePlain(aux.position, element2.position);
+                        element.vx = -element.vx;
+                        element.vz = -element.vz;
+                    }
+                    scene.remove(aux);
+                })
 
                 //////////////////////////////////////////////////////////////////////////////////
                 //		render the whole thing on the page
@@ -243,7 +266,7 @@
                 const toggler = document.getElementById("toggler");
                 const range = document.getElementById("range");
                 const powerLabel = document.getElementById("power");
-                const power = 0;
+                let power = 0;
 
                 reseter.addEventListener("mouseup", Reset, false);
                 reseter.addEventListener("touchend", Reset, false);
@@ -283,6 +306,7 @@
                 function PowerChange(e) {
                     e.stopPropagation();
                     power = range.value;
+                    console.log(power)
                     powerLabel.innerHTML = `Power: ${power}%`;
                 }
 

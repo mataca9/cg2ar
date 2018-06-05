@@ -3,9 +3,16 @@
 var g = 0.025;
 var vl = 0.4;
 
+function distancePlain(pos1, pos2){
+    var a = pos1.x - pos2.x;
+    var b = pos1.z - pos2.z;
+
+    var c = Math.sqrt( a*a + b*b );
+}
+
 function ground(scene) {
-    var geometry = new THREE.PlaneGeometry(3.2, 4.4, 1);
-    var material = new THREE.MeshStandardMaterial({ name: 'ground', opacity:0, color: 0xaaaaaa, side: THREE.DoubleSide });
+    var geometry = new THREE.PlaneGeometry(20, 20, 1);
+    var material = new THREE.MeshStandardMaterial({ name: 'ground', opacity: 0, color: 0xaaaaaa, side: THREE.DoubleSide });
     // var material = new THREE.MeshNormalMaterial({
     //     transparent: true,
     //     opacity: 1,
@@ -20,7 +27,7 @@ function ground(scene) {
     ground.rotation.x = Math.PI / 2;
     scene.add(ground);
 
-    ground.material.transparent = true ;
+    ground.material.transparent = true;
 
     return ground;
 }
@@ -47,7 +54,7 @@ function cube(scene) {
     );
     var cube = new THREE.Mesh(geometry, materials);
 
-    cube.position.y = cube.geometry.parameters.height/2 + 0.05;
+    cube.position.y = cube.geometry.parameters.height / 2 + 0.05;
     cube = Object.assign(cube, new Behavior(scene));
     scene.add(cube);
 
@@ -60,25 +67,25 @@ function cylinder(scene, opacity = 1) {
     );
 
     var extrudeSettings = {
-        amount : 1.7,
-        steps : 1,
+        amount: 1.7,
+        steps: 1,
         bevelEnabled: false,
         curveSegments: 8
     };
-    
+
     var arcShape = new THREE.Shape();
     arcShape.absarc(0, 0, 0.75, 0, Math.PI * 2, false);
-    
+
     var holePath = new THREE.Path();
     holePath.absarc(0, 0, 0.75, 0, Math.PI * 2, true);
     arcShape.holes.push(holePath);
-    
+
     var geometry = new THREE.ExtrudeGeometry(arcShape, extrudeSettings);
 
     var cylinder = new THREE.Mesh(geometry, materials);
 
     cylinder = Object.assign(cylinder, new Behavior(scene));
-    cylinder.rotation.x = -Math.PI /2;
+    cylinder.rotation.x = -Math.PI / 2;
     scene.add(cylinder);
     return cylinder;
 }
@@ -98,22 +105,22 @@ function Behavior() {
     this.preparing = false;
 
     this.jump = function (power = 0.05) {
-        if(!this.stop) return;
+        if (!this.stop) return;
 
         this.vy = power;
         this.position.y += 0.1;
     }
 
     this.release = function (power) {
-        if(!this.stop) return;
+        if (!this.stop) return;
 
         this.position.y += 0.1;
-        this.vz = power/100 * Math.cos(this.rotation.x - Math.PI/2);
-        this.vx = power/100 * -Math.cos(this.rotation.z - Math.PI/2);
-        this.vy = power/100 * -Math.sin(this.rotation.z - Math.PI/2);
+        this.vz = power / 100 * Math.cos(this.rotation.x - Math.PI / 2);
+        this.vx = power / 100 * -Math.cos(this.rotation.z - Math.PI / 2);
+        this.vy = power / 100 * -Math.sin(this.rotation.z - Math.PI / 2);
     }
 
-    this.maxRelease = function() {
+    this.maxRelease = function () {
         this.power = 0.5;
         this.preparing = true;
         this.release();
@@ -127,8 +134,8 @@ function Behavior() {
     this.hitTest = function (element) {
         const size = this.geometry.type === "SphereGeometry" ? this.geometry.parameters.radius : this.geometry.parameters.height / 2;
 
-        const xRange = [element.position.x - size/2 - element.geometry.parameters.width/2, element.position.x + size/2 + element.geometry.parameters.width/2];
-        const zRange = [element.position.z - size/2 - element.geometry.parameters.height/2, element.position.z + size/2 + element.geometry.parameters.height/2];
+        const xRange = [element.position.x - size / 2 - element.geometry.parameters.width / 2, element.position.x + size / 2 + element.geometry.parameters.width / 2];
+        const zRange = [element.position.z - size / 2 - element.geometry.parameters.height / 2, element.position.z + size / 2 + element.geometry.parameters.height / 2];
 
         this.hity = this.position.y <= element.position.y + size;
         this.hitx = this.position.x >= xRange[0] && this.position.x <= xRange[1];
@@ -154,7 +161,7 @@ function Behavior() {
         this.rotation.y += this.ry;
         this.rotation.z += this.rz;
 
-        if (this.hity && this.hitx && this.hitz ) {
+        if (this.hity && this.hitx && this.hitz) {
             this.vy *= vl;
             this.vy = -this.vy;
         }
@@ -170,18 +177,18 @@ function Behavior() {
 
             this.position.x += dx > 0.5 ? -0.05 : dx < -0.5 ? 0.05 : 0;
             this.position.z += dz > 0.5 ? -0.05 : dz < -0.5 ? 0.05 : 0;
-        }      
+        }
     }
 }
 
-THREE.CylinderCurvedSurfaceGeometry = function(radius, height, startAngle, endAngle, horizontalSegments, verticalSegments) {
+THREE.CylinderCurvedSurfaceGeometry = function (radius, height, startAngle, endAngle, horizontalSegments, verticalSegments) {
     var width = radius * 2 * Math.PI;
     var plane = new THREE.PlaneGeometry(width, height, horizontalSegments, verticalSegments);
     var index = 0;
 
-    for(var i=0; i<=verticalSegments; i++) {
-        for(var j=0; j<=horizontalSegments; j++) {
-            var angle = startAngle + (j/horizontalSegments)*(endAngle - startAngle);
+    for (var i = 0; i <= verticalSegments; i++) {
+        for (var j = 0; j <= horizontalSegments; j++) {
+            var angle = startAngle + (j / horizontalSegments) * (endAngle - startAngle);
             plane.vertices[index].z = radius * Math.cos(angle);
             plane.vertices[index].x = radius * Math.sin(angle);
             index++;
