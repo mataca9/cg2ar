@@ -112,7 +112,7 @@ function Behavior() {
     }
 
     this.release = function (power) {
-        if (!this.stop) return;
+        if (!this.stop || power === 0) return;
 
         this.position.y += 0.1;
         this.vz = power / 100 * Math.cos(this.rotation.x - Math.PI / 2);

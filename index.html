@@ -17,11 +17,13 @@
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
     <div id="container"></div>
-    <div id="power">Power: 0%</div>
     <button id="launch">Launch</button>
     <button id="toggler">Toggle</button>
     <button id="reset">Reset</button>
-    <input id="range" type="range" value="0" min="0" max="100" />
+    <div class="powerWrapper">
+        <div id="power">Power: 0%</div>
+        <input id="range" type="range" value="0" min="0" max="100" />
+    </div>
     <script>
             //////////////////////////////////////////////////////////////////////////////////
             //		Init
@@ -81,11 +83,11 @@
 
                 const arToolkitSource = new THREEx.ArToolkitSource({
                     // to read from the webcam 
-                    //sourceType: 'webcam',
+                    sourceType: 'webcam',
 
                     // // to read from an image
-                    sourceType: 'image',
-                    sourceUrl: THREEx.ArToolkitContext.baseURL + '/img/bg5.jpeg',
+                    //sourceType: 'image',
+                    //sourceUrl: THREEx.ArToolkitContext.baseURL + '/img/bg5.jpeg',
 
                     // to read from a video
                     // sourceType : 'video',
@@ -182,13 +184,13 @@
                 // Collision test
 
                 onRenderFcts.push(() => {
-                    if(Math.abs(element.vx) < 0.001 && Math.abs(element.vz) < 0.001) return;
+                    if (Math.abs(element.vx) < 0.001 && Math.abs(element.vz) < 0.001) return;
 
                     const aux = sphere(scene);
                     aux.position.set(element.position.x, element.position.y, element.position.z);
                     const e1 = new THREE.Box3().setFromObject(aux);
                     const e2 = new THREE.Box3().setFromObject(element2);
-                    
+
                     const radius1 = aux.geometry.parameters.radius;
                     const radius2 = e2.max.x - e2.min.x;
 
@@ -224,13 +226,6 @@
                     mouseSupport: true,
                     limitStickTravel: true,
                     stickRadius: 50
-                });
-
-                joystick.addEventListener('touchStart', function () {
-                    console.log('down')
-                });
-                joystick.addEventListener('touchEnd', function () {
-                    console.log('up')
                 });
 
                 onRenderFcts.push(function () {
@@ -277,7 +272,7 @@
                 toggler.addEventListener("mouseup", TogglePress, false);
                 toggler.addEventListener("touchend", TogglePress, false);
 
-                range.addEventListener("change", PowerChange, false);
+                range.addEventListener("input", PowerChange, false);
 
                 function Reset() {
                     element.position.x = 0;
@@ -296,7 +291,7 @@
 
                 let lastToggle = 0;
                 function TogglePress() {
-                    if (lastTimeMsec - lastToggle < 1) return false;
+                    if (lastTimeMsec - lastToggle < 1000) return false;
 
                     mugVisible = !mugVisible;
                     lastToggle = lastTimeMsec;
@@ -306,7 +301,6 @@
                 function PowerChange(e) {
                     e.stopPropagation();
                     power = range.value;
-                    console.log(power)
                     powerLabel.innerHTML = `Power: ${power}%`;
                 }
 
